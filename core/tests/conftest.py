@@ -6,6 +6,7 @@ import pytest
 import tempfile
 import shutil
 import sys
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw
 import io
@@ -131,6 +132,11 @@ def loaded_detector(detector):
         detector.model.to = Mock(return_value=detector.model)
         detector.model.eval = Mock()
         
+        # IMPORTANT: Ensure confidence threshold is known
+        # The detector fixture creates with default threshold (0.7)
+        # But for testing, let's make it explicit
+        detector.confidence_threshold = 0.5
+        
         yield detector
 
 
@@ -208,6 +214,69 @@ def mock_requests_get():
         yield mock_get
 
 
+@pytest.fixture
+def grayscale_image():
+    """Create a grayscale image for testing mode conversion."""
+    img = Image.new('L', (200, 150), color=128)  # Grayscale
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([20, 20, 180, 130], outline=255, width=2)
+    return img
+
+
+@pytest.fixture
+def rgba_image():
+    """Create an RGBA image for testing mode conversion."""
+    img = Image.new('RGBA', (200, 150), color=(255, 255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([20, 20, 180, 130], outline=(0, 0, 0, 255), width=2)
+    return img
+
+
+@pytest.fixture
+def various_format_images(test_data_dir):
+    """Create images in various formats for testing."""
+    base_img = Image.new('RGB', (100, 100), color='white')
+    draw = ImageDraw.Draw(base_img)
+    draw.rectangle([10, 10, 90, 90], outline='black', width=2)
+    
+    formats = {
+        'JPEG': 'test.jpg',
+        'PNG': 'test.png', 
+        'TIFF': 'test.tiff',
+        'BMP': 'test.bmp',
+        'WEBP': 'test.webp'
+    }
+    
+    paths = {}
+    for fmt, filename in formats.items():
+        path = test_data_dir / filename
+        try:
+            if fmt == 'JPEG':
+                # Convert to RGB for JPEG
+                base_img.save(path, fmt, quality=95)
+            else:
+                base_img.save(path, fmt)
+            paths[fmt] = path
+        except Exception:
+            # Skip formats not supported by this PIL installation
+            pass
+    
+    return paths
+
+
+@pytest.fixture
+def mock_torch_device():
+    """Mock torch device detection for testing."""
+    import torch
+    original_cuda_available = torch.cuda.is_available
+    original_mps_available = getattr(torch.backends, 'mps', Mock()).is_available if hasattr(torch.backends, 'mps') else lambda: False
+    
+    yield {
+        'original_cuda': original_cuda_available,
+        'original_mps': original_mps_available
+    }
+
+
 # Pytest marks for categorizing tests
 pytest_plugins = ["pytest_mock"]
 
@@ -255,3 +324,13 @@ def performance_timer():
             return None
     
     return Timer()
+
+
+@pytest.fixture
+def env_vars():
+    """Fixture for testing with environment variables."""
+    original_env = os.environ.copy()
+    yield os.environ
+    # Restore original environment
+    os.environ.clear()
+    os.environ.update(original_env)

@@ -63,7 +63,7 @@ def get_optimal_device() -> str:
     if torch.cuda.is_available():
         return "cuda"
     elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-        return "mps"  # Apple Silicon
+        return "mps" 
     else:
         return "cpu"
 
@@ -71,10 +71,6 @@ def get_optimal_device() -> str:
 def get_settings() -> Settings:
     """Get application settings."""
     settings = Settings()
-    
-    # Auto-detect device if set to "auto"
-    if settings.device == "auto":
-        settings.device = get_optimal_device()
     
     return settings
 

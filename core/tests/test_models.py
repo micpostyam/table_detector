@@ -356,7 +356,7 @@ class TestModelIntegration:
         detection = Detection(bbox=bbox, confidence=0.95, label="table")
         
         # Should be able to convert to dict
-        detection_dict = detection.dict()
+        detection_dict = detection.model_dump()
         assert detection_dict["confidence"] == 0.95
         assert detection_dict["label"] == "table"
         assert "bbox" in detection_dict

@@ -19,6 +19,7 @@ Un système robuste pour détecter des tableaux dans des images de documents com
 - **Support GPU/CPU automatique**
 - **API Pydantic** pour la validation des données
 - **Suite de tests complète** avec pytest
+- **Interface en ligne de commande (CLI)** simple et puissante
 
 ## 📋 Prérequis
 
@@ -34,7 +35,7 @@ Un système robuste pour détecter des tableaux dans des images de documents com
 ```bash
 # Cloner le repository
 git clone <repository-url>
-cd table-detector/core
+cd Table_detector/core
 
 # Créer un environnement virtuel
 python -m venv venv
@@ -45,7 +46,7 @@ venv\Scripts\activate  # Windows
 # Installer les dépendances
 pip install -r requirements.txt
 
-# Installation en mode développement
+# Installation en mode développement (optionnel)
 pip install -e .
 ```
 
@@ -61,7 +62,43 @@ pip install -r requirements.txt
 
 ## 🎯 Utilisation rapide
 
-### Détection basique
+### Utilisation en ligne de commande (CLI)
+
+Le script CLI principal se trouve dans `core/cli.py`.
+
+#### Détection sur une seule image
+
+```bash
+python core/cli.py single path/to/image.jpg --visualize result.jpg
+```
+
+#### Traitement par lots
+
+```bash
+python core/cli.py batch --directory ./images --output results.json
+# ou
+python core/cli.py batch --images img1.jpg img2.jpg --output results.json
+```
+
+#### Benchmark du modèle
+
+```bash
+python core/cli.py benchmark --stress-test
+```
+
+#### Options globales
+
+- `--confidence 0.8` : seuil de confiance
+- `--device cuda` : forcer l'utilisation du GPU
+- `--verbose` : mode verbeux
+
+#### Aide
+
+```bash
+python core/cli.py --help
+```
+
+### Utilisation en tant que bibliothèque Python
 
 ```python
 from src.detector import TableDetector
@@ -314,21 +351,23 @@ mypy src/
 ### Structure du projet
 
 ```
-core/
-├── src/
-│   ├── __init__.py
-│   ├── detector.py      # Classe principale
-│   ├── models.py        # Modèles Pydantic
-│   ├── config.py        # Configuration
-│   └── exceptions.py    # Exceptions
-├── tests/
-│   ├── conftest.py      # Configuration pytest
-│   ├── test_detector.py # Tests principaux
-│   └── test_models.py   # Tests des modèles
-├── examples/
-│   ├── basic_usage.py
-│   └── batch_processing.py
-└── requirements.txt
+Table_detector/
+├── core/
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── detector.py      # Classe principale
+│   │   ├── models.py        # Modèles Pydantic
+│   │   ├── config.py        # Configuration
+│   │   └── exceptions.py    # Exceptions
+│   ├── tests/
+│   │   ├── conftest.py      # Configuration pytest
+│   │   ├── test_detector.py # Tests principaux
+│   │   └── test_models.py   # Tests des modèles
+│   ├── examples/
+│   │   ├── basic_usage.py
+│   │   └── batch_processing.py
+│   ├── cli.py               # Interface CLI
+│   └── requirements.txt
 ```
 
 ## 📈 Métriques

@@ -299,8 +299,7 @@ def main():
 Exemples d'utilisation:
   %(prog)s single invoice.jpg --visualize result.jpg
   %(prog)s batch --images *.png --output results.json
-  %(prog)s batch --directory ./images --confidence 0.8
-  %(prog)s benchmark --device cuda
+  %(prog)s --confidence 0.8 batch --directory ./images 
         """
     )
     
